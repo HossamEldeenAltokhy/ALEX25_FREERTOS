@@ -11,51 +11,111 @@
 #include "FREERTOSFILES/FreeRTOS.h"
 #include "FREERTOSFILES/task.h"
 #include "drivers/mUART.h"
+#include "FREERTOSFILES/queue.h"
 
-char str1[] = "Hello";
-char str2[] = "World";
+#define MOTOR_SPEED   10
+#define OIL_TEMP      11
+
+
+char str1[] = "Received = ";
+char str2[] = " km/hour";
+char str3[] = " 'C";
+char error1[] = " QUEUE is FULL !!\r";
+char error2[] = " QUEUE is Empty !!\r";
+
 TaskHandle_t handler1;
 TaskHandle_t handler2;
 
-void Task1(void* var) {
+QueueHandle_t Q_handler;
+
+typedef struct {
+    int iValue;
+    int iMeaning;
+
+} myData;
+
+void senderTask(void* var) {
 
 
-    char *ptr = (char *) var;
+
+    BaseType_t feedBack;
+
     while (1) {
-        UART_str(ptr);
+
+        feedBack = xQueueSendToFront(Q_handler, &var, 10);
+        
+        if(feedBack == errQUEUE_FULL){
+            UART_str(error1);
+        }
+
+    }
+
+
+
+
+}
+
+void receiverTask(void* var) {
+
+
+    myData* pData = NULL;
+    BaseType_t feedBack;
+    while (1) {
+
+        feedBack = xQueueReceive(Q_handler, &pData, 10);
+        
+        if(feedBack == errQUEUE_EMPTY){
+            UART_str(error2);
+        }
+        else{
+            UART_str(str1);
+        UART_NUM(pData->iValue);
+
+        if (pData->iMeaning == MOTOR_SPEED) {
+            UART_str(str2);
+        } else {
+            UART_str(str3);
+        }
+
         UART_send('\r');
-        vTaskDelay(1);
+        }
+
         
     }
 
-
-    vTaskDelete(NULL);
-
 }
+myData data1, data2;
 
-void Task2(void* var) {
-
-
-    char *ptr = (char *) var;
-    while (1) {
-        UART_str(ptr);
-        UART_send('\r');
-        vTaskDelay(1);
-    }
-
-}
-
-
+myData* pData1, *pData2;
 
 int main() {
     DDRA = 0xFF;
     init_UART(9600);
 
 
-    char data1 = 'A';
-    char data2 = 'B';
-    xTaskCreate(Task1, "T1", 100, str1, 1, NULL);
-    xTaskCreate(Task2, "T2", 100, str2, 1, &handler2);
+
+    pData1 = &data1;
+    pData2 = &data2;
+
+    data1.iValue = 50;
+    data1.iMeaning = MOTOR_SPEED;
+
+    data2.iValue = 60;
+    data2.iMeaning = OIL_TEMP;
+
+
+
+
+
+    Q_handler = xQueueCreate(1, sizeof (int));
+
+
+    // Two Sender Tasks
+    xTaskCreate(senderTask, "T1toSend", 100, pData1, 1, NULL);
+    xTaskCreate(senderTask, "T2toSend", 100, pData2, 1, NULL);
+
+    // Receiver Task
+    xTaskCreate(receiverTask, "T3toReceive", 100, NULL, 2, &handler2);
 
     vTaskStartScheduler();
 
