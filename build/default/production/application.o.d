@@ -20,7 +20,8 @@ build/default/production/application.o.d \
  FREERTOSFILES/projdefs.h FREERTOSFILES/portable.h \
  FREERTOSFILES/deprecated_definitions.h FREERTOSFILES/portmacro.h \
  FREERTOSFILES/mpu_wrappers.h FREERTOSFILES/task.h FREERTOSFILES/list.h \
- drivers/mUART.h FREERTOSFILES/queue.h FREERTOSFILES/task.h
+ drivers/mUART.h FREERTOSFILES/queue.h FREERTOSFILES/task.h \
+ FREERTOSFILES/semphr.h FREERTOSFILES/queue.h
 
 c:\program\ files\microchip\xc8\v2.32\avr\avr\include\stdio.h:
 
@@ -77,3 +78,7 @@ drivers/mUART.h:
 FREERTOSFILES/queue.h:
 
 FREERTOSFILES/task.h:
+
+FREERTOSFILES/semphr.h:
+
+FREERTOSFILES/queue.h:

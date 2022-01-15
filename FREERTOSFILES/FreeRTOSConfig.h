@@ -57,6 +57,8 @@
 #define configQUEUE_REGISTRY_SIZE	0
 #define configUSE_TIME_SLICING      1
 
+#define configSUPPORT_DYNAMIC_ALLOCATION  1  // it's already defined to 1
+
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES 		1
 #define configMAX_CO_ROUTINE_PRIORITIES ( 2 )
